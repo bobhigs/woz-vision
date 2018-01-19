@@ -52,8 +52,8 @@ target_link_libraries(erodedilate ${OpenCV_LIBS})
 add_executable(webCamTracker src/webCamTracker.cpp)
 target_link_libraries(webCamTracker ${OpenCV_LIBS})
 
-
-
+add_executable(resize src/resize.cpp)
+target_link_libraries(resize ${OpenCV_LIBS})
 
 #
 #add_executable(vio src/video_input.cpp)
