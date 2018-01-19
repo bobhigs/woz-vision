@@ -49,6 +49,9 @@ target_link_libraries(devInRange ${OpenCV_LIBS})
 add_executable(erodedilate src/erodedilate.cpp)
 target_link_libraries(erodedilate ${OpenCV_LIBS})
 
+add_executable(resize src/resize.cpp)
+target_link_libraries(resize ${OpenCV_LIBS})
+
 
 
 
