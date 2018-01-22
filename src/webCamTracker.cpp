@@ -41,10 +41,21 @@ int main(int argc, char **argv ) {
 		if(prevPoints.size() > maxLenth){
 			prevPoints.pop_back();
 		}
+
+		cv::Point velocity;
+		cv::Point currentPos = cv::Point(int(prevPoints[0].x+prevPoints[0].width/2),int(prevPoints[0].y+prevPoints[0].height/2));
+
 		//Draw a trail of circles at all of the recorded points
 		for (int i = 0; i < prevPoints.size() && i < maxLenth; ++i) {
-			circle(frame, cv::Point(int(prevPoints[i].x),int(prevPoints[i].y)), 20 - i/4, Scalar(0,0,255), -1, 8);
+			cv::Point pointI = cv::Point(int(prevPoints[i].x+prevPoints[i].width/2),int(prevPoints[i].y+prevPoints[i].height/2));
+			circle(frame, pointI, 20 - i/4, Scalar(0,0,255), -1, 8);
+			//weight makes more recent data more significant when calculating velocity
+			float weight = 1/(i+1); 
+			int xvel = int((prevPoints[0].x-prevPoints[prevPoints.size()/3].x)*weight);
+			int yvel = int((prevPoints[0].y-prevPoints[prevPoints.size()/3].y)*weight);
+			velocity += cv::Point(xvel,yvel);
 		}
+		arrowedLine(frame,currentPos,currentPos + velocity,Scalar(255,0,0),10,8,0,0.1);
 
 		//stream1 >> frame;
 		imshow("Tracking", frame);
