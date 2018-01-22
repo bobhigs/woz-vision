@@ -55,9 +55,16 @@ target_link_libraries(webCamTracker ${OpenCV_LIBS})
 add_executable(resize src/resize.cpp)
 target_link_libraries(resize ${OpenCV_LIBS})
 
+add_executable(LKDemo src/opticalFlowLK.cpp)
+target_link_libraries(LKDemo ${OpenCV_LIBS})
+
+add_executable(PerspectiveCorrection src/perspectivecorrection.cpp)
+target_link_libraries(PerspectiveCorrection ${OpenCV_LIBS})
+
 #
 #add_executable(vio src/video_input.cpp)
 #target_link_libraries(vio ${OpenCV_LIBS})
 #
 #add_executable(vwrite src/vwrite.cpp)
 #target_link_libraries(vwrite ${OpenCV_LIBS})
+
