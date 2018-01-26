@@ -6,7 +6,7 @@
 using namespace cv;
 using namespace std;
 
-vector<Rect> printRect(void);
+vector<Rect> detectPeople(Mat frame);
 
 // int main(int argc, char** argv) {
 
@@ -39,23 +39,24 @@ vector<Rect> printRect(void);
 // 	return 0;
 // }
 
-vector<Rect> printRect(void) {
+vector<Rect> detectPeople(Mat frame) {
 
 	HOGDescriptor hog;
 	hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
 
-	Mat originalImage;
-	Mat resizedImage;
-	Mat frame;
+	//Mat originalImage;
+	//Mat resizedImage;
+	//Mat frame;
 	vector<Rect> peopleLocations;
 
 	//String imagePath = String(frame);
 
 	//originalImage = imread(imagePath, IMREAD_COLOR);
 	// resizes the images
-	resize(frame, resizedImage, Size(), .1, .1, CV_INTER_LINEAR);
+	//resize(frame, resizedImage, Size(), .1, .1, CV_INTER_LINEAR);
 
-	hog.detectMultiScale(originalImage, peopleLocations, 0, Size(8,8), Size(32,32), 1.05, 2);
+	hog.detectMultiScale(frame, peopleLocations, 0, Size(8,8), Size(32,32), 1.05, 2);
+	// groupRectangles(peopleLocations, 5);
 
 	return peopleLocations;
 
