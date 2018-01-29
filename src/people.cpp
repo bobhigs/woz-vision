@@ -45,7 +45,7 @@ vector<Rect> detectPeople(Mat frame) {
 	hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
 
 	//Mat originalImage;
-	//Mat resizedImage;
+	Mat resizedImage;
 	//Mat frame;
 	vector<Rect> peopleLocations;
 
@@ -53,9 +53,9 @@ vector<Rect> detectPeople(Mat frame) {
 
 	//originalImage = imread(imagePath, IMREAD_COLOR);
 	// resizes the images
-	//resize(frame, resizedImage, Size(), .1, .1, CV_INTER_LINEAR);
+	resize(frame, resizedImage, Size(), .5, .5, CV_INTER_LINEAR);
 
-	hog.detectMultiScale(frame, peopleLocations, 0, Size(8,8), Size(32,32), 1.05, 2);
+	hog.detectMultiScale(resizedImage, peopleLocations, 0, Size(4,4), Size(8,8), 1.05, 2);
 	// groupRectangles(peopleLocations, 5);
 
 	return peopleLocations;

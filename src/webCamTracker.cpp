@@ -2,6 +2,10 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/tracking.hpp>
 #include <deque>
+#include "people.cpp"
+
+
+
 
 using namespace cv;
 using namespace std;
@@ -26,17 +30,47 @@ int main(int argc, char **argv ) {
 	stream1.read(frame);
 
 	Rect2d bbox(287, 23, 86, 320);
-
 	// Uncomment the line below if you 
     // want to choose the bounding box
-    bbox = selectROI(frame, false);
+    //boundingBoxes.push_back(selectROI(frame, false)); //choose the bounding box of object to track
 
-	tracker->init(frame, bbox);
+    //send detected people's boxes into the 
 
+	tracker->init(frame, bbox); //track bbox
+
+	cout << frame.size() << endl;
+
+	vector<Rect> boundingBoxes;
 	while (stream1.read(frame)) {
-		tracker->update(frame, bbox);
+		vector<Rect> newpeople = detectPeople(frame);
+		//check that none of the new detected people are already being tracked
+		/*for(int i = 0; i < newpeople.size(); i++){
+			bool intersect = false;
+			for (int j = 0; j < boundingBoxes.size(); j++){
+				if ((newpeople[i] & boundingBoxes[j]).area() > 0){
+					intersect = true;
+					break;
+				}
+			}
+			if(!intersect)
+				boundingBoxes.push_back(newpeople[i]);
+		}*/
 
-		rectangle(frame, bbox, Scalar( 255, 0, 0), 2, 1);
+		for(int i = 0; i < newpeople.size(); i++) {
+			bbox = Rect2d(newpeople[i].x * 2.0, newpeople[i].y * 2.0, newpeople[i].width * 2.0, newpeople[i].height * 2.0);
+
+			tracker->update(frame, bbox); //update the position tracking
+
+			rectangle(frame, bbox, Scalar(0, 255, 0), 2, 1); //draw the bounding rectanle
+		}
+
+		/*for(int i = 0; i < boundingBoxes.size(); i++) {
+			bbox = Rect2d(boundingBoxes[i]);
+
+			tracker->update(frame, bbox); //update the position tracking
+
+			rectangle(frame, bbox, Scalar( 255, 0, 0), 2, 1); //draw the bounding rectanle
+		}*/
 		prevPoints.push_front(bbox);
 		if(prevPoints.size() > maxLenth){
 			prevPoints.pop_back();
@@ -46,6 +80,7 @@ int main(int argc, char **argv ) {
 		cv::Point currentPos = cv::Point(int(prevPoints[0].x+prevPoints[0].width/2),int(prevPoints[0].y+prevPoints[0].height/2));
 
 		//Draw a trail of circles at all of the recorded points
+		/*
 		for (int i = 0; i < prevPoints.size() && i < maxLenth; ++i) {
 			cv::Point pointI = cv::Point(int(prevPoints[i].x+prevPoints[i].width/2),int(prevPoints[i].y+prevPoints[i].height/2));
 			circle(frame, pointI, 20 - i/4, Scalar(0,0,255), -1, 8);
@@ -55,6 +90,7 @@ int main(int argc, char **argv ) {
 			int yvel = int((prevPoints[0].y-prevPoints[prevPoints.size()/3].y)*weight);
 			velocity += cv::Point(xvel,yvel);
 		}
+		*/
 		arrowedLine(frame,currentPos,currentPos + velocity,Scalar(255,0,0),10,8,0,0.1);
 
 		//stream1 >> frame;
