@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
-#include <opencv2/tracking.hpp>
+// #include <opencv2/tracking.hpp>
 #include <deque>
-#include "people.cpp"
-
-
-
+#include <chrono>
+using namespace std::chrono;
+#include "people_detect.h"
 
 using namespace cv;
 using namespace std;
@@ -13,10 +12,15 @@ using namespace std;
 int main(int argc, char **argv ) {
 	int maxLenth = 40; //max length of the trail
 	//setting up the tracker with the MIL tracking algorithm
-	Ptr<Tracker> tracker = TrackerKCF::create();
+	// Ptr<Tracker> tracker = TrackerKCF::create();
 	
+	PeopleDetect PeopleDetect;
+
+	long long prev = (duration_cast< milliseconds >(system_clock::now().time_since_epoch())).count();
+
 	//reading in webcam video
-	VideoCapture stream1(0);
+//    VideoCapture stream1(0);
+	VideoCapture stream1("people_walking.mp4");
 	namedWindow("Camera View", WINDOW_AUTOSIZE );
 
 	//checking that the video stream has opened succesfully 
@@ -36,13 +40,19 @@ int main(int argc, char **argv ) {
 
     //send detected people's boxes into the 
 
-	tracker->init(frame, bbox); //track bbox
+	// tracker->init(frame, bbox); //track bbox
 
 	cout << frame.size() << endl;
 
 	vector<Rect> boundingBoxes;
 	while (stream1.read(frame)) {
-		vector<Rect> newpeople = detectPeople(frame);
+		vector<Rect> newpeople;
+		PeopleDetect.detectPeople(frame, newpeople);
+		long long current = (duration_cast< milliseconds >(system_clock::now().time_since_epoch())).count();
+		cout << "loop time -> " << current - prev << endl;
+		prev = current;
+
+		// vector<Rect> newpeople = detectWithCascade(frame);
 		//check that none of the new detected people are already being tracked
 		/*for(int i = 0; i < newpeople.size(); i++){
 			bool intersect = false;
@@ -56,10 +66,10 @@ int main(int argc, char **argv ) {
 				boundingBoxes.push_back(newpeople[i]);
 		}*/
 
-		for(int i = 0; i < newpeople.size(); i++) {
-			bbox = Rect2d(newpeople[i].x * 2.0, newpeople[i].y * 2.0, newpeople[i].width * 2.0, newpeople[i].height * 2.0);
+		for (auto &personRect : newpeople) {
+			bbox = Rect2d(personRect.x, personRect.y, personRect.width, personRect.height);
 
-			tracker->update(frame, bbox); //update the position tracking
+			// tracker->update(frame, bbox); //update the position tracking
 
 			rectangle(frame, bbox, Scalar(0, 255, 0), 2, 1); //draw the bounding rectanle
 		}
@@ -93,10 +103,9 @@ int main(int argc, char **argv ) {
 		*/
 		arrowedLine(frame,currentPos,currentPos + velocity,Scalar(255,0,0),10,8,0,0.1);
 
-		//stream1 >> frame;
-		imshow("Tracking", frame);
-		int k = waitKey(1);
-        if(k == 27) break;
+		 imshow("Tracking", frame);
+		 int k = waitKey(1);
+         if(k == 27) break;
 	}
 
 	cout << CV_MAJOR_VERSION << CV_MINOR_VERSION;
